@@ -7,6 +7,8 @@ AMovingPlatform::AMovingPlatform()
 {
 	PrimaryActorTick.bCanEverTick = true;
 	SetMobility(EComponentMobility::Movable); // 움직일 수 있도록 변경
+
+	TargetLocation.Set(250.0f, 0.0f, 360.0f);
 }
 
 void AMovingPlatform::BeginPlay()
@@ -27,7 +29,9 @@ void AMovingPlatform::Tick(float DeltaTime)
 	if (HasAuthority())
 	{
 		FVector Location = GetActorLocation();
-		Location += FVector(speed * DeltaTime, 0, 0);
+		FVector GlobalTargetLocation = GetTransform().TransformPosition(TargetLocation);
+		FVector Direction = (GlobalTargetLocation - Location).GetSafeNormal(); // 방향
+		Location += speed * DeltaTime * Direction;
 		SetActorLocation(Location);
 	}
 }
